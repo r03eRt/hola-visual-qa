@@ -23,12 +23,24 @@ agent starts from an identical, verifiable toolchain.
 
 ## Proposed interfaces and files
 
-- `package.json` — replace every `latest` specifier with the exact version
-  currently resolved in `package-lock.json`:
+- `package.json` — replace every `latest` specifier with an EXACT, mutually
+  compatible pinned version (no `^`/`~`). Pin a **coherent, working** set, not
+  whatever `latest` happened to resolve:
   - dependencies: `@anthropic-ai/sdk@0.115.0`, `dotenv@17.4.2`, `zod@4.4.3`
-  - devDependencies: `@playwright/test@1.62.1`, `@types/node@26.1.2`,
-    `eslint@10.8.0`, `tsx@4.23.1`, `typescript@7.0.2`
-  - Use exact pins (no `^`/`~`) for determinism.
+  - devDependencies: `@playwright/test@1.62.1`, `@types/node@22.20.1`,
+    `eslint@10.8.0`, `tsx@4.23.1`, `typescript@5.9.3`
+
+> Design decision (2026-07-31, Opus): `latest` resolved `typescript@7.0.2` (the
+> new native/"Go" port) and `@types/node@26`. `typescript-eslint@8.x` requires
+> `typescript >=4.8.4 <6.1.0`, so TS 7 makes `npm run lint` impossible today
+> (unconditional throw; no flag bypass; no typescript-eslint release supports TS
+> 7 — upstream issue typescript-eslint#10940). The feature's goal is a working,
+> reproducible toolchain, so we pin **TypeScript 5.9.3** (latest stable 5.x) and
+> **@types/node 22.20.1** (matches the Node 22 runtime/CI) instead. ESLint 10 is
+> kept — `typescript-eslint@8.65` supports `eslint ^8.57 || ^9 || ^10`. With TS
+> 5.9.3 the peer deps are satisfied, so **no `.npmrc legacy-peer-deps` hack and
+> no package aliases are needed**. Revisit TS 7 only when typescript-eslint ships
+> support, as a separate future chore.
 - Add lint devDependencies (pinned): `@eslint/js` and `typescript-eslint`
   (the flat-config helper that bundles the TS parser + plugin).
 - `eslint.config.js` — new flat config:
@@ -74,8 +86,8 @@ None. No screenshots or expected UI change.
   unused vars). Mitigation: fix the small number of violations; if a rule is
   genuinely inappropriate for this codebase, disable it explicitly in
   `eslint.config.js` with a one-line justification (not inline blanket disables).
-- Risk: TS 7 / ESLint 10 are recent majors; verify `typescript-eslint` supports
-  them at install time; pin the compatible version it resolves to.
+- Resolved: the TS 7 vs typescript-eslint conflict (see Design decision above) —
+  we pin TS 5.9.3, so the toolchain is mutually compatible with no hacks.
 
 ## Handover notes
 
