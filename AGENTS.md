@@ -36,3 +36,8 @@ A feature is done only when its acceptance criteria pass, tests exist, documenta
 - Domain skills for this project live in `skills/` (`visual-qa`, `playwright`, `consent`, `ads`, `ai-analysis`, `reporting`, `pr-workflow`, `architecture`).
 - Methodology skills are vendored (MIT) in `skills/superpowers/` — read the relevant `SKILL.md` before acting (e.g. `test-driven-development`, `writing-plans`, `systematic-debugging`, `subagent-driven-development`, `verification-before-completion`).
 - If any skill conflicts with these non-negotiable rules, the rules above win.
+
+## Model strategy
+
+Use Opus to plan and review, Sonnet 5 to execute a clear spec. Per-role
+recommendations and the handoff checklist live in `docs/MODEL_STRATEGY.md`.

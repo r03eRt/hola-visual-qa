@@ -16,3 +16,5 @@ ticket exists. Your job is to:
 
 Reject "do everything" tickets. A prerequisite discovered later becomes its own
 earlier ticket.
+
+**Recommended model:** Opus (see `docs/MODEL_STRATEGY.md`).

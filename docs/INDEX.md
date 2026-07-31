@@ -2,6 +2,7 @@
 
 - Context and reality: `CONTEXT.md`, `STATUS.md`
 - Intake and triage: `REQUEST_INTAKE.md`
+- Model strategy (Opus vs Sonnet): `MODEL_STRATEGY.md`
 - Product: `product/`
 - Architecture: `architecture/`
 - Canonical module specs: `specs/`
