@@ -4,7 +4,7 @@ Status labels: `scaffold`, `partial`, `implemented`, `verified`.
 
 | Capability | Status | Notes |
 |---|---|---|
-| Repository bootstrap | partial | TypeScript, Playwright config and scripts exist; versions use `latest` and need locking. |
+| Repository bootstrap | partial | Dependency versions are now exact-pinned to the lockfile-resolved versions (no `latest`, no ranges) and `npm ci` succeeds (see `.npmrc`: `legacy-peer-deps=true`, required because `typescript@7.0.2` conflicts with `typescript-eslint@8.65.0`'s declared peer range). `npm run typecheck` passes. `eslint.config.js` (flat config, `@eslint/js` + `typescript-eslint` recommended) is added but **`npm run lint` currently fails to run**: `typescript-eslint` unconditionally throws on TypeScript >=7 (no published or prerelease version supports it yet; upstream tracking issue https://github.com/typescript-eslint/typescript-eslint/issues/10940). The officially documented workaround (aliasing `typescript` to the `@typescript/typescript6` compatibility package for programmatic consumers, per the TS 7 release notes) requires adding packages beyond the two eslint deps this feature is scoped to add, so it was not applied without a spec/scope decision. Lint is blocked until either typescript-eslint ships TS7 support or the toolchain spec is revisited to allow the alias workaround. |
 | Scenario matrix | scaffold | Example types and scenarios exist; filtering and validation are incomplete. |
 | Consent engine | scaffold | Example cookie/UI logic only; must be adapted to Hola's CMP. |
 | Page stabilization | partial | Basic animation/font handling exists; policy and diagnostics need implementation. |
