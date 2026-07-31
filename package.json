@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "playwright test",
+    "test:unit": "playwright test tests/unit",
+    "test:integration": "playwright test tests/integration",
     "test:visual": "playwright test tests/visual",
     "test:update": "playwright test tests/visual --update-snapshots",
     "test:headed": "playwright test --headed",
