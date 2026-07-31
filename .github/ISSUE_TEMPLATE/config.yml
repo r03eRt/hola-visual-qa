@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Intake and triage policy
+    url: https://github.com/r03eRt/hola-visual-qa/blob/main/docs/REQUEST_INTAKE.md
+    about: How requests are classified and turned into tickets before any code is written.

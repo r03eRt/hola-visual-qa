@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "validate": "npm run typecheck && npm run test:visual",
-    "feature:new": "node scripts/new-feature.mjs"
+    "feature:new": "node scripts/new-feature.mjs",
+    "ticket:new": "node scripts/new-ticket.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",

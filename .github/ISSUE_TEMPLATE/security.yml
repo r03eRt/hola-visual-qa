@@ -1,0 +1,16 @@
+name: Security
+description: Security or privacy concern
+labels: ["type:security"]
+body:
+  - type: textarea
+    id: concern
+    attributes:
+      label: The concern
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Potential impact (secrets, redirects, host allowlisting, redaction, artifacts)
+    validations:
+      required: true

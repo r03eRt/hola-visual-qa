@@ -1,0 +1,16 @@
+name: Spike
+description: Research or a decision to make; may produce an ADR
+labels: ["type:spike"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question to answer or decision to make
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected outcome (ADR, follow-up feature tickets, ...)
+    validations:
+      required: false

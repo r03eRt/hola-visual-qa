@@ -1,0 +1,16 @@
+name: Docs
+description: Documentation-only change
+labels: ["type:docs"]
+body:
+  - type: textarea
+    id: change
+    attributes:
+      label: What documentation should change and why
+    validations:
+      required: true
+  - type: input
+    id: files
+    attributes:
+      label: Affected files or sections
+    validations:
+      required: false
