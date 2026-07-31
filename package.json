@@ -10,6 +10,7 @@
     "test:headed": "playwright test --headed",
     "report": "playwright show-report reports/html",
     "orchestrate": "tsx src/orchestrator/cli.ts",
+    "plan": "tsx src/scenarios/plan-cli.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "validate": "npm run typecheck && npm run test:visual",
