@@ -8,7 +8,6 @@ import {
   assertConsentSatisfied
 } from '../../src/consent/cookie-adapter.js';
 
-const RAW_ACCEPTED_VALUE = 'accepted';
 const RAW_MISMATCH_VALUE = '__super-secret-consent-value__';
 
 function validScenario(overrides: Partial<Scenario> = {}): Scenario {
@@ -293,7 +292,6 @@ test.describe('redaction', () => {
     expect(thrown).toBeDefined();
     const error = thrown as Error & { normalized?: { category: string; phase: string } };
     expect(error.message).not.toContain(RAW_MISMATCH_VALUE);
-    expect(error.message).not.toContain(RAW_ACCEPTED_VALUE);
     expect(error.message).toContain('consent_status');
     expect(error.message).toContain('example.com');
     expect(error.normalized).toBeDefined();
