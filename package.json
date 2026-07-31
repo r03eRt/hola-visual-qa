@@ -17,15 +17,17 @@
     "ticket:new": "node scripts/new-ticket.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "latest",
-    "dotenv": "latest",
-    "zod": "latest"
+    "@anthropic-ai/sdk": "0.115.0",
+    "dotenv": "17.4.2",
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "@playwright/test": "latest",
-    "@types/node": "latest",
-    "eslint": "latest",
-    "tsx": "latest",
-    "typescript": "latest"
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.62.1",
+    "@types/node": "26.1.2",
+    "eslint": "10.8.0",
+    "tsx": "4.23.1",
+    "typescript": "7.0.2",
+    "typescript-eslint": "8.65.0"
   }
 }
