@@ -1,0 +1,30 @@
+{
+  "name": "hola-visual-qa",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:visual": "playwright test tests/visual",
+    "test:update": "playwright test tests/visual --update-snapshots",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report reports/html",
+    "orchestrate": "tsx src/orchestrator/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "validate": "npm run typecheck && npm run test:visual",
+    "feature:new": "node scripts/new-feature.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "dotenv": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "latest",
+    "@types/node": "latest",
+    "eslint": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}

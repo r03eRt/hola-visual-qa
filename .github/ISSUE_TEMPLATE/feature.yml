@@ -1,0 +1,25 @@
+name: Feature
+about: One independently reviewable capability
+body:
+  - type: input
+    id: slug
+    attributes:
+      label: Feature slug
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
