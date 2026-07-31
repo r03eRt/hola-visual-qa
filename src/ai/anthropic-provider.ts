@@ -4,11 +4,13 @@ import type { AiProvider, VisualAnalysisInput } from './provider.js';
 
 export class AnthropicProvider implements AiProvider {
   private readonly client: Anthropic;
+  private readonly model: string;
 
   constructor() {
     if (!env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is required');
     if (!env.CLAUDE_MODEL) throw new Error('CLAUDE_MODEL is required; set a model available in your Anthropic account');
     this.client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+    this.model = env.CLAUDE_MODEL;
   }
 
   async analyzeVisualFailure(input: VisualAnalysisInput): Promise<string> {
@@ -21,7 +23,7 @@ export class AnthropicProvider implements AiProvider {
         content.push({ type: 'image', source: { type: 'base64', media_type: 'image/png', data } });
       }
     }
-    const response = await this.client.messages.create({ model: env.CLAUDE_MODEL, max_tokens: 1000, messages: [{ role: 'user', content }] });
+    const response = await this.client.messages.create({ model: this.model, max_tokens: 1000, messages: [{ role: 'user', content }] });
     return response.content.filter(block => block.type === 'text').map(block => block.text).join('\n');
   }
 }
