@@ -74,7 +74,7 @@ if (dryRun) {
   try {
     const out = execFileSync("gh", ghArgs, { encoding: "utf8" });
     console.log(out.trim());
-  } catch (error) {
+  } catch {
     console.error("Failed to create GitHub issue. Is `gh` authenticated? Falling back to manual command:");
     console.error(`gh ${ghArgs.join(" ")}`);
     process.exit(1);

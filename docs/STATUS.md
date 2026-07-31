@@ -4,7 +4,7 @@ Status labels: `scaffold`, `partial`, `implemented`, `verified`.
 
 | Capability | Status | Notes |
 |---|---|---|
-| Repository bootstrap | partial | TypeScript, Playwright config and scripts exist; versions use `latest` and need locking. |
+| Repository bootstrap | implemented | Dependency versions are exact-pinned to mutually-compatible, lockfile-resolved versions (no `latest`, no ranges, no npm hacks): `typescript@5.9.3` and `@types/node@22.20.1` (downgraded from TS 7/`@types/node` 26 to stay compatible with `typescript-eslint@8.65.0`), `eslint@10.8.0`, `@eslint/js@10.0.1`, `@anthropic-ai/sdk@0.115.0`, `dotenv@17.4.2`, `zod@4.4.3`, `@playwright/test@1.62.1`, `tsx@4.23.1`. `npm ci` succeeds cleanly from the committed lockfile with no `.npmrc`/`legacy-peer-deps` and no package aliases. `eslint.config.js` (flat config, `@eslint/js` + `typescript-eslint` recommended, scoped to `src/`, `tests/`, `scripts/`, `*.config.ts`) is in place and `npm run lint` exits 0 (one real unused-catch-binding violation fixed in `scripts/new-ticket.mjs`). `npm run typecheck` exits 0. TS 7 remains unpinned for now — revisit as a separate chore once `typescript-eslint` ships support (tracked upstream). |
 | Scenario matrix | scaffold | Example types and scenarios exist; filtering and validation are incomplete. |
 | Consent engine | scaffold | Example cookie/UI logic only; must be adapted to Hola's CMP. |
 | Page stabilization | partial | Basic animation/font handling exists; policy and diagnostics need implementation. |
