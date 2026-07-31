@@ -52,18 +52,18 @@ to build on.
 
 ## Acceptance criteria
 
-- [ ] `ProjectConfig` Zod schema exists with `schemaVersion` and strict objects;
+- [x] `ProjectConfig` Zod schema exists with `schemaVersion` and strict objects;
       unknown keys cause a validation failure.
-- [ ] `loadConfig()` returns a typed, validated `ProjectConfig` for the committed
+- [x] `loadConfig()` returns a typed, validated `ProjectConfig` for the committed
       `visual-qa.config.ts`.
-- [ ] Invalid config throws an error that lists **all** problems together, not
+- [x] Invalid config throws an error that lists **all** problems together, not
       just the first.
-- [ ] Env overrides apply only to allowlisted fields; a non-allowlisted env var
+- [x] Env overrides apply only to allowlisted fields; a non-allowlisted env var
       cannot change config; no secret ever appears in the returned object.
-- [ ] Unit tests cover: valid config, unknown-key rejection, multi-error
+- [x] Unit tests cover: valid config, unknown-key rejection, multi-error
       aggregation, allowlisted override applied, non-allowlisted override ignored,
       secret-not-leaked.
-- [ ] `npm run typecheck` and `npm run lint` exit 0. `docs/STATUS.md` "Scenario
+- [x] `npm run typecheck` and `npm run lint` exit 0. `docs/STATUS.md` "Scenario
       matrix"/config note updated honestly (config contract now exists;
       expansion still pending).
 
