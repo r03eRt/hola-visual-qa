@@ -1,18 +1,90 @@
 name: CI
+
 on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+
+# One reviewable pipeline; jobs are ordered cheapest-first so a lint/type
+# failure fails fast before any browser is downloaded.
 jobs:
-  validate:
+  static:
+    name: Static checks (typecheck + lint)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+
+  unit:
+    name: Unit suite (hermetic, no browser)
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The unit suite is pure/DI and never launches a browser, but the
+      # Playwright test runner still needs a chromium binary present to load
+      # the project config. Install only the browser, without OS deps.
+      - run: npx playwright install chromium
+      - run: npm run test:unit
+
+  browser-integration:
+    name: Browser integration (real Chromium smoke)
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run typecheck
+      - run: npm run test:integration
+
+  # The visual suite needs a reachable QA target (BASE_URL) AND committed
+  # baselines, neither of which exists yet. Gate it behind a manual dispatch
+  # + a configured secret so it never red-Xes normal PRs prematurely. Wire it
+  # into the required checks once baselines land (see docs/STATUS.md).
+  visual:
+    name: Visual suite (manual, requires QA target + baselines)
+    runs-on: ubuntu-latest
+    needs: static
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Fail early if no QA target is configured
+        env:
+          BASE_URL: ${{ secrets.QA_BASE_URL }}
+        run: |
+          if [ -z "${BASE_URL}" ]; then
+            echo "::error::QA_BASE_URL secret is not set; cannot run the visual suite."
+            exit 1
+          fi
       - run: npm run test:visual
         env:
           BASE_URL: ${{ secrets.QA_BASE_URL }}
+      - name: Upload visual report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-report
+          path: reports/html
+          if-no-files-found: ignore

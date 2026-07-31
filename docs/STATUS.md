@@ -20,7 +20,7 @@ Status labels: `scaffold`, `partial`, `implemented`, `verified`.
 | JSON/HTML summary | not implemented | Playwright HTML reporter is configured, custom report is not. |
 | URL discovery | not implemented | Specification only. |
 | Local dashboard | not implemented | Future scope. |
-| CI | scaffold | Basic workflow exists; browser caching, snapshot policy and branch protection are external. |
+| CI | partial | `.github/workflows/ci.yml` runs on every PR/push as ordered jobs (fail fast, cheapest first): `static` (`npm ci` → `typecheck` → `lint`), `unit` (`test:unit` = hermetic `tests/unit`, installs only the chromium binary the runner needs to load config; launches no browser), and `browser-integration` (`npx playwright install --with-deps chromium` → `test:integration` = the real-Chromium smoke test from #6 that could not run in the local sandbox). A `visual` job exists but is gated behind `workflow_dispatch` and a `QA_BASE_URL` secret (it fails fast if the secret is missing) so it never red-Xes normal PRs until a QA target + committed baselines exist; it uploads `reports/html` as an artifact. `test:unit`/`test:integration` npm scripts back both CI and local runs. Verified locally: `npm run typecheck`, `npm run lint`, `npm run test:unit` (206 passed). The workflow's runtime (unit/integration/visual on GitHub runners) will be confirmed on the first PR run. Still external/pending: browser binary caching, branch-protection required-checks config, and wiring the visual job into required checks once baselines land. |
 
 ## Rule for updates
 
