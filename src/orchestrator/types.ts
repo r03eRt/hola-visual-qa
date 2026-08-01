@@ -1,4 +1,11 @@
-import type { VisualScenario } from '../scenarios/scenarios.js';
+import type { Scenario } from '../domain/index.js';
 
-export interface RunRequest { scenarios: VisualScenario[]; updateSnapshots?: boolean; }
-export interface RunResult { command: string; scenarioIds: string[]; exitCode: number; }
+export interface RunRequest {
+  scenarios: readonly Scenario[];
+  updateSnapshots?: boolean;
+}
+export interface RunResult {
+  command: string;
+  scenarioIds: string[];
+  exitCode: number;
+}
