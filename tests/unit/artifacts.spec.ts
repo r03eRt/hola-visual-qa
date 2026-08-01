@@ -39,7 +39,7 @@ function validConfig(): ProjectConfig {
       country: ['ES'],
       ads: [true, false]
     },
-    adapters: { consent: {}, ads: {}, country: {} },
+    adapters: { consent: {}, ads: { strategy: 'init-script' }, country: {} },
     visual: { maxDiffPixelRatio: 0.01, animations: 'disabled' },
     diagnostics: { captureConsole: true, captureNetwork: true, ignoredDomains: [] },
     artifacts: { outputDir: 'reports', retainOnFailureOnly: true },
