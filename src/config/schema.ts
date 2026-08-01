@@ -34,7 +34,13 @@ const ConsentAdapterConfigSchema = z
   .strict()
   .prefault({});
 
-const AdsAdapterConfigSchema = z.object({}).strict().default({});
+const AdsAdapterConfigSchema = z
+  .object({
+    strategy: z.enum(['init-script']).default('init-script'),
+    flagName: z.string().min(1).optional()
+  })
+  .strict()
+  .prefault({});
 
 const CountryAdapterConfigSchema = z.object({}).strict().default({});
 
