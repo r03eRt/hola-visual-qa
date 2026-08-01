@@ -15,6 +15,7 @@ export default defineConfig({
       animations: 'disabled'
     }
   },
+  snapshotPathTemplate: 'baselines/{projectName}/{arg}{ext}',
   use: {
     baseURL: process.env.BASE_URL ?? 'https://example.com',
     trace: 'retain-on-failure',
