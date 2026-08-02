@@ -42,7 +42,16 @@ const AdsAdapterConfigSchema = z
   .strict()
   .prefault({});
 
-const CountryAdapterConfigSchema = z.object({}).strict().default({});
+const CountryAdapterConfigSchema = z
+  .object({
+    strategy: z.enum(['header', 'cookie', 'none']).default('none'),
+    headerName: z.string().min(1).optional(),
+    cookieName: z.string().min(1).optional(),
+    cookieDomain: z.string().min(1).optional(),
+    debugSignal: z.string().min(1).optional()
+  })
+  .strict()
+  .prefault({});
 
 const AdapterConfigurationSchema = z
   .object({
