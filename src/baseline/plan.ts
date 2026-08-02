@@ -27,7 +27,7 @@ export interface UpdateRequest {
   scenarioId: string;
   targetId: string;
   baselineName: string;
-  project: 'desktop-chromium' | 'mobile-chromium';
+  project: 'desktop-chromium' | 'mobile-chromium' | 'desktop-webkit';
   sourceActualPath: string;
 }
 
