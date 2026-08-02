@@ -182,7 +182,7 @@ test.describe('InitScriptAdStateAdapter.verify', () => {
 test.describe('createAdStateAdapter', () => {
   test('defaults flagName to "__ADS_ENABLED__" when config does not set one', () => {
     const scenario = validScenario({ adsEnabled: true });
-    const config = validConfig({ adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'none' } } });
+    const config = validConfig({ adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'none' }, user: { fixtures: [] } } });
 
     const adapter = createAdStateAdapter(scenario, config);
     const descriptor = adapter.describeRedacted();
@@ -193,7 +193,7 @@ test.describe('createAdStateAdapter', () => {
 
   test('uses config.adapters.ads.flagName override when present', () => {
     const scenario = validScenario({ adsEnabled: false });
-    const config = validConfig({ adapters: { consent: {}, ads: { strategy: 'init-script', flagName: 'my_ads_flag' }, country: { strategy: 'none' } } });
+    const config = validConfig({ adapters: { consent: {}, ads: { strategy: 'init-script', flagName: 'my_ads_flag' }, country: { strategy: 'none' }, user: { fixtures: [] } } });
 
     const adapter = createAdStateAdapter(scenario, config);
     const descriptor = adapter.describeRedacted();

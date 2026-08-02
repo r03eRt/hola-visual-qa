@@ -307,7 +307,7 @@ test.describe('createCountryAdapter', () => {
   test('uses config-provided strategy/headerName', async () => {
     const scenario = validScenario({ country: 'FR' });
     const config = validConfig({
-      adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'header', headerName: 'X-Custom-Country' } }
+      adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'header', headerName: 'X-Custom-Country' }, user: { fixtures: [] } }
     });
 
     const adapter = createCountryAdapter(scenario, config);
@@ -324,7 +324,8 @@ test.describe('createCountryAdapter', () => {
       adapters: {
         consent: {},
         ads: { strategy: 'init-script' },
-        country: { strategy: 'cookie', cookieName: 'custom_country', cookieDomain: 'staging.example.com' }
+        country: { strategy: 'cookie', cookieName: 'custom_country', cookieDomain: 'staging.example.com' },
+        user: { fixtures: [] }
       }
     });
 
@@ -350,7 +351,7 @@ test.describe('createCountryAdapter', () => {
     const scenario = validScenario({ country: 'DE' });
     const config = validConfig({
       baseUrl: 'https://qa.example.org',
-      adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'cookie' } }
+      adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'cookie' }, user: { fixtures: [] } }
     });
 
     const adapter = createCountryAdapter(scenario, config);
@@ -363,7 +364,7 @@ test.describe('createCountryAdapter', () => {
   test('uses config-provided debugSignal for verify', async () => {
     const scenario = validScenario({ country: 'ES' });
     const config = validConfig({
-      adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'header', debugSignal: '__CUSTOM_SIGNAL__' } }
+      adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'header', debugSignal: '__CUSTOM_SIGNAL__' }, user: { fixtures: [] } }
     });
 
     const adapter = createCountryAdapter(scenario, config);
@@ -384,7 +385,7 @@ test.describe('createCountryAdapter', () => {
 
   test('resolves the scenario country as the country to apply', async () => {
     const scenario = validScenario({ country: 'PT' });
-    const config = validConfig({ adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'header' } } });
+    const config = validConfig({ adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'header' }, user: { fixtures: [] } } });
 
     const adapter = createCountryAdapter(scenario, config);
     const context = new FakeCountryContext();

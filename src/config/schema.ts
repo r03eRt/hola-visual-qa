@@ -53,11 +53,28 @@ const CountryAdapterConfigSchema = z
   .strict()
   .prefault({});
 
+const UserFixtureDefinitionSchema = z
+  .object({
+    id: z.string().min(1),
+    label: z.string().min(1).optional(),
+    storageStateRef: z.string().min(1).optional()
+  })
+  .strict();
+
+const UserAdapterConfigSchema = z
+  .object({
+    debugSignal: z.string().min(1).optional(),
+    fixtures: z.array(UserFixtureDefinitionSchema).default([])
+  })
+  .strict()
+  .prefault({});
+
 const AdapterConfigurationSchema = z
   .object({
     consent: ConsentAdapterConfigSchema,
     ads: AdsAdapterConfigSchema,
-    country: CountryAdapterConfigSchema
+    country: CountryAdapterConfigSchema,
+    user: UserAdapterConfigSchema
   })
   .strict()
   .prefault({});
