@@ -34,7 +34,7 @@ function config(): ProjectConfig {
       country: ['ES'],
       ads: [true, false]
     },
-    adapters: { consent: {}, ads: { strategy: 'init-script' }, country: {} },
+    adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'none' } },
     visual: { maxDiffPixelRatio: 0.01, animations: 'disabled' },
     diagnostics: { captureConsole: true, captureNetwork: true, ignoredDomains: [] },
     artifacts: { outputDir: 'reports', retainOnFailureOnly: true },

@@ -208,7 +208,7 @@ test.describe('createCookieConsentAdapter', () => {
     const scenario = validScenario({ consent: 'accepted' });
     const config = validConfig({
       baseUrl: 'https://www.hola.com',
-      adapters: { consent: {}, ads: { strategy: 'init-script' }, country: {} }
+      adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'none' } }
     });
 
     const adapter = createCookieConsentAdapter(scenario, config);
@@ -223,7 +223,7 @@ test.describe('createCookieConsentAdapter', () => {
     const scenario = validScenario({ consent: 'rejected' });
     const config = validConfig({
       baseUrl: 'https://www.hola.com',
-      adapters: { consent: { cookieName: 'my_consent', cookieDomain: '.hola.com' }, ads: { strategy: 'init-script' }, country: {} }
+      adapters: { consent: { cookieName: 'my_consent', cookieDomain: '.hola.com' }, ads: { strategy: 'init-script' }, country: { strategy: 'none' } }
     });
 
     const adapter = createCookieConsentAdapter(scenario, config);
