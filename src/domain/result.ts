@@ -102,6 +102,26 @@ const BrowserInfoSchema = z
   })
   .strict();
 
+/**
+ * Minimal, manifest-local mirror of `UrlInventorySchema` from
+ * src/discovery/contract.ts. Duplicated (rather than imported) so
+ * src/domain never depends on src/discovery — see SPEC-010 / the
+ * url-sitemap-discovery feature SPEC for the canonical shape.
+ */
+const ManifestInventorySchema = z
+  .object({
+    source: z.enum(['sitemap']),
+    pages: z.array(
+      z
+        .object({
+          path: z.string().min(1),
+          url: z.string().min(1)
+        })
+        .strict()
+    )
+  })
+  .strict();
+
 export const RunManifestSchema = z
   .object({
     toolVersion: z.string().min(1),
@@ -111,6 +131,7 @@ export const RunManifestSchema = z
     configHash: z.string().min(1),
     baselineHash: z.string().min(1).optional(),
     scenarioIds: z.array(z.string().min(1)),
+    inventory: ManifestInventorySchema.optional(),
     createdAt: z.iso.datetime()
   })
   .strict()
