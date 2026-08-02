@@ -120,6 +120,14 @@ const ExecutionPolicySchema = z
   .strict()
   .prefault({});
 
+const DiscoveryPolicySchema = z
+  .object({
+    sitemapUrl: z.string().url().optional(),
+    maxUrls: z.number().int().min(1).default(200),
+    ignorePathPatterns: z.array(z.string().min(1)).default([])
+  })
+  .strict();
+
 export const ProjectConfigSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -133,7 +141,8 @@ export const ProjectConfigSchema = z
     diagnostics: DiagnosticsPolicySchema,
     artifacts: ArtifactPolicySchema,
     ai: AiPolicySchema,
-    execution: ExecutionPolicySchema
+    execution: ExecutionPolicySchema,
+    discovery: DiscoveryPolicySchema.optional()
   })
   .strict();
 
@@ -147,3 +156,4 @@ export type DiagnosticsPolicy = z.output<typeof DiagnosticsPolicySchema>;
 export type ArtifactPolicy = z.output<typeof ArtifactPolicySchema>;
 export type AiPolicy = z.output<typeof AiPolicySchema>;
 export type ExecutionPolicy = z.output<typeof ExecutionPolicySchema>;
+export type DiscoveryPolicy = z.output<typeof DiscoveryPolicySchema>;

@@ -67,6 +67,8 @@ export interface BuildRunManifestInput {
   config: ProjectConfig;
   baselineHash?: string;
   scenarioIds: readonly string[];
+  /** Resolved URL inventory, included only when provided. */
+  inventory?: RunManifest['inventory'];
   /** Defaults to `new Date().toISOString()` when omitted. */
   createdAt?: string;
 }
@@ -81,6 +83,7 @@ export function buildRunManifest(input: BuildRunManifestInput): RunManifest {
     configHash: canonicalJsonHash(input.config),
     ...(input.baselineHash ? { baselineHash: input.baselineHash } : {}),
     scenarioIds: [...input.scenarioIds],
+    ...(input.inventory ? { inventory: input.inventory } : {}),
     createdAt: input.createdAt ?? new Date().toISOString()
   };
   return parseRunManifest(candidate);
