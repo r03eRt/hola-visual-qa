@@ -10,7 +10,7 @@
  *   --target <targetId>      repeatable
  *   --baseline-name <name>   repeatable
  *   --source <path>          repeatable (the actual.png to promote)
- *   --project <desktop-chromium|mobile-chromium|desktop-webkit>
+ *   --project <desktop-chromium|mobile-chromium|desktop-webkit|desktop-firefox>
  *   --reason "<text>"        REQUIRED
  *   --yes                    confirm overwriting existing baselines
  *   --dry-run                build + print the plan, touch nothing
@@ -31,7 +31,7 @@ import { baselinePath } from './paths.js';
 
 const USAGE = `Usage: npm run baseline:update -- \\
   --scenario <id> --target <targetId> --baseline-name <name> --source <path/to/actual.png> \\
-  --project <desktop-chromium|mobile-chromium|desktop-webkit> --reason "<why>" [--yes] [--dry-run] [--json]
+  --project <desktop-chromium|mobile-chromium|desktop-webkit|desktop-firefox> --reason "<why>" [--yes] [--dry-run] [--json]
 
 Flags (--scenario/--target/--baseline-name/--source are repeatable and pair
 positionally in the same order; the same count of each is required):
@@ -39,7 +39,7 @@ positionally in the same order; the same count of each is required):
   --target <targetId>        visual target id (src/visual targetId())
   --baseline-name <name>     baseline name (src/visual baselineName())
   --source <path>            path to the fresh actual.png to promote
-  --project <name>           desktop-chromium | mobile-chromium | desktop-webkit
+  --project <name>           desktop-chromium | mobile-chromium | desktop-webkit | desktop-firefox
   --reason "<text>"          REQUIRED written reason for the update
   --yes                      confirm overwriting an existing baseline
   --dry-run                  build and print the plan, write nothing
@@ -47,7 +47,7 @@ positionally in the same order; the same count of each is required):
   --help                     print this usage and exit 0
 `;
 
-type Project = 'desktop-chromium' | 'mobile-chromium' | 'desktop-webkit';
+type Project = 'desktop-chromium' | 'mobile-chromium' | 'desktop-webkit' | 'desktop-firefox';
 
 interface ParsedArgs {
   scenarios: string[];
@@ -148,9 +148,12 @@ function buildRequests(parsed: ParsedArgs): UpdateRequest[] {
   if (
     parsed.project !== 'desktop-chromium' &&
     parsed.project !== 'mobile-chromium' &&
-    parsed.project !== 'desktop-webkit'
+    parsed.project !== 'desktop-webkit' &&
+    parsed.project !== 'desktop-firefox'
   ) {
-    throw new UsageError('--project must be "desktop-chromium", "mobile-chromium" or "desktop-webkit"');
+    throw new UsageError(
+      '--project must be "desktop-chromium", "mobile-chromium", "desktop-webkit" or "desktop-firefox"'
+    );
   }
   const project: Project = parsed.project;
 

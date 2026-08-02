@@ -69,7 +69,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright install --with-deps chromium webkit firefox
       - name: Fail early if no QA target is configured
         env:
           BASE_URL: ${{ secrets.QA_BASE_URL }}
