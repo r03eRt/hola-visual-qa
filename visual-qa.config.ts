@@ -12,6 +12,9 @@ const config: ProjectConfigInput = {
   baseUrl: 'https://example.com',
   allowedHosts: ['example.com'],
   pages: [{ path: '/', name: 'home' }],
+  // Optional: mask dynamic regions (carousels, ads, clocks) so they never cause
+  // flaky visual diffs, e.g. `visual: { maskSelectors: ['[data-visual-mask]', '.ad-slot'] }`.
+  // example.com is fully static, so no masks are declared here.
   dimensions: {
     device: ['desktop', 'mobile'],
     consent: ['accepted', 'rejected'],

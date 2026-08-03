@@ -23,7 +23,7 @@ function baseConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfig {
       ads: [true, false]
     },
     adapters: { consent: {}, ads: {}, country: {} },
-    visual: { maxDiffPixelRatio: 0.01, animations: 'disabled' },
+    visual: { maxDiffPixelRatio: 0.01, animations: 'disabled', maskSelectors: ['[data-visual-mask]'] },
     diagnostics: { captureConsole: true, captureNetwork: true, ignoredDomains: [] },
     artifacts: { outputDir: 'reports', retainOnFailureOnly: true },
     ai: { enabled: false, provider: 'none' },

@@ -13,7 +13,16 @@ import {
   type ReadinessStepName
 } from '../../src/stability/readiness.js';
 
-function minimalConfig(overrides: Partial<{ animations: 'disabled' | 'allow' }> = {}): ProjectConfig {
+function minimalConfig(
+  overrides: Partial<{ animations: 'disabled' | 'allow'; maskSelectors: string[] }> = {}
+): ProjectConfig {
+  const visual =
+    overrides.animations || overrides.maskSelectors
+      ? {
+          ...(overrides.animations ? { animations: overrides.animations } : {}),
+          ...(overrides.maskSelectors ? { maskSelectors: overrides.maskSelectors } : {})
+        }
+      : undefined;
   return ProjectConfigSchema.parse({
     schemaVersion: 1,
     projectName: 'hola-visual-qa',
@@ -26,7 +35,7 @@ function minimalConfig(overrides: Partial<{ animations: 'disabled' | 'allow' }> 
       country: ['ES'],
       ads: [true, false]
     },
-    visual: overrides.animations ? { animations: overrides.animations } : undefined
+    visual
   });
 }
 
@@ -122,6 +131,18 @@ test.describe('readinessPolicyFromConfig', () => {
     const config = minimalConfig({ animations: 'allow' });
     const policy = readinessPolicyFromConfig(config);
     expect(policy.animations).toBe('allow');
+  });
+
+  test('defaults maskSelectors to the data-visual-mask attribute', () => {
+    const config = minimalConfig();
+    const policy = readinessPolicyFromConfig(config);
+    expect(policy.maskSelectors).toEqual(['[data-visual-mask]']);
+  });
+
+  test('maps VisualPolicy.maskSelectors from config', () => {
+    const config = minimalConfig({ maskSelectors: ['.ad-slot', '#carousel'] });
+    const policy = readinessPolicyFromConfig(config);
+    expect(policy.maskSelectors).toEqual(['.ad-slot', '#carousel']);
   });
 
   test('overrides win over the config mapping', () => {

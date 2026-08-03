@@ -42,6 +42,7 @@ export function readinessPolicyFromConfig(
   return {
     ...DEFAULT_READINESS_POLICY,
     animations: config.visual.animations,
+    maskSelectors: config.visual.maskSelectors,
     ...overrides
   };
 }

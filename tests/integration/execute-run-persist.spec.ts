@@ -27,7 +27,7 @@ function baseConfig(outputDir: string): ProjectConfig {
       ads: [true, false]
     },
     adapters: { consent: {}, ads: { strategy: 'init-script' }, country: { strategy: 'none' }, user: { fixtures: [] } },
-    visual: { maxDiffPixelRatio: 0.01, animations: 'disabled' },
+    visual: { maxDiffPixelRatio: 0.01, animations: 'disabled', maskSelectors: ['[data-visual-mask]'] },
     diagnostics: { captureConsole: true, captureNetwork: true, ignoredDomains: [] },
     artifacts: { outputDir, retainOnFailureOnly: true },
     ai: { enabled: false, provider: 'none', timeoutMs: 30_000, maxOutputTokens: 1024, maxAttempts: 2, maxCostUsd: 0.5 },

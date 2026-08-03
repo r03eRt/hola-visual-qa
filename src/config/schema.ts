@@ -82,7 +82,8 @@ const AdapterConfigurationSchema = z
 const VisualPolicySchema = z
   .object({
     maxDiffPixelRatio: z.number().min(0).max(1).default(0.01),
-    animations: z.enum(['disabled', 'allow']).default('disabled')
+    animations: z.enum(['disabled', 'allow']).default('disabled'),
+    maskSelectors: z.array(z.string().min(1)).default(['[data-visual-mask]'])
   })
   .strict()
   .prefault({});

@@ -91,3 +91,44 @@ BASE_URL="$BASE_URL" npm run test:visual
 - Playwright and explicit rules decide pass/fail; no LLM ever does.
 - No production credentials, cookies, auth state, traces or screenshots of
   authenticated views should be committed.
+
+## Demonstrated first run (issue #77)
+
+The project ships its **first reviewed baselines** against the stable default
+target `https://example.com` (a public, static page — ideal for a deterministic
+first baseline). They live at:
+
+- `baselines/desktop-chromium/full-page-chromium-ci-desktop.png` (1440x900)
+- `baselines/mobile-chromium/full-page-chromium-ci-mobile.png` (Pixel 7)
+
+Reproduce the green run locally (macOS 13, where `chrome-headless-shell` cannot
+be installed, so point Playwright at the cached full Chromium):
+
+```bash
+export CHROMIUM_EXECUTABLE_PATH="$HOME/Library/Caches/ms-playwright/chromium-1140/chrome-mac/Chromium.app/Contents/MacOS/Chromium"
+# temporarily set launchOptions.executablePath on the two chromium projects in
+# playwright.config.ts (LOCAL ONLY — never commit), then:
+BASE_URL=https://example.com npx playwright test tests/visual \
+  --project=desktop-chromium --project=mobile-chromium
+# → 8 passed, 8 skipped (device-mismatched scenarios skip per project)
+```
+
+**Masking dynamic zones.** Declare per-project mask selectors in
+`visual-qa.config.ts` under `visual.maskSelectors` (default
+`['[data-visual-mask]']`); they are applied to every `toHaveScreenshot` so
+carousels/ads/clocks never cause flaky diffs. `example.com` is fully static, so
+no masks are needed for this first target.
+
+**Scope / follow-up.**
+- Only the two **chromium** projects are baselined; `desktop-webkit`/
+  `desktop-firefox` need those browsers (uninstallable in this environment) — a
+  follow-up must generate and review their baselines.
+- The committed PNGs are **local Chromium (darwin)** renders. A linux CI run may
+  diff on antialiasing, so the gated `visual` CI job stays gated until linux
+  baselines are generated and reviewed there.
+- consent/ads scenario variants currently **share one baseline** per device
+  (they render identically on `example.com`); a follow-up should partition
+  baselines per scenario for sites where consent changes the page.
+- The baseline creation is recorded with a written reason in
+  `baselines/UPDATE_LOG.jsonl`.
+
