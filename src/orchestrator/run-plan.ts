@@ -58,9 +58,10 @@ function resolveTargets(scenario: Scenario, targetsFor?: (scenario: Scenario) =>
  * Pure, deterministic expansion of `scenarios` into a `VisualRunPlan`. No
  * fs/Date/random/env; no browser is touched. Preserves the input scenario
  * order. The baseline partition used here (`{ browser: 'chromium', platform:
- * 'ci', device: scenario.device }`) is a stable logical partition — the real
- * per-project partition is applied by the Playwright project at snapshot
- * time via `snapshotPathTemplate`.
+ * 'ci', device: scenario.device, scenarioId: scenario.id }`) is a stable
+ * logical partition — the scenario id keeps consent/ads/country variants on
+ * their own baseline, and the real per-project browser/platform partition is
+ * applied by the Playwright project at snapshot time via `snapshotPathTemplate`.
  */
 export function buildVisualRunPlan(input: BuildRunPlanInput): VisualRunPlan {
   const { config, scenarios, targetsFor } = input;
@@ -70,7 +71,12 @@ export function buildVisualRunPlan(input: BuildRunPlanInput): VisualRunPlan {
     const targets = resolveTargets(scenario, targetsFor);
     const targetItems: TargetWorkItem[] = targets.map((target) => ({
       target,
-      baselineName: baselineName(target, { browser: 'chromium', platform: 'ci', device: scenario.device })
+      baselineName: baselineName(target, {
+        browser: 'chromium',
+        platform: 'ci',
+        device: scenario.device,
+        scenarioId: scenario.id
+      })
     }));
 
     return {

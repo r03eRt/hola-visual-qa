@@ -89,8 +89,18 @@ test.describe('buildVisualRunPlan', () => {
     expect(workItems[0].targets).toHaveLength(1);
     expect(workItems[0].targets[0].target).toEqual({ kind: 'full-page' });
     expect(workItems[0].targets[0].baselineName).toBe(
-      baselineName({ kind: 'full-page' }, { browser: 'chromium', platform: 'ci', device: 'mobile' })
+      baselineName({ kind: 'full-page' }, { browser: 'chromium', platform: 'ci', device: 'mobile', scenarioId: s.id })
     );
+  });
+
+  test('gives scenarios that differ only by consent/ads distinct baseline names', () => {
+    const accepted = scenario({ id: 'home-desktop-accepted-es-ads_on', consent: 'accepted' });
+    const rejected = scenario({ id: 'home-desktop-rejected-es-ads_on', consent: 'rejected' });
+    const { workItems } = buildVisualRunPlan({ config: baseConfig(), scenarios: [accepted, rejected] });
+    const [a, b] = workItems;
+    expect(a?.targets[0]?.baselineName).not.toBe(b?.targets[0]?.baselineName);
+    expect(a?.targets[0]?.baselineName).toContain('home-desktop-accepted-es-ads-on');
+    expect(b?.targets[0]?.baselineName).toContain('home-desktop-rejected-es-ads-on');
   });
 
   test('wires the config-derived readiness policy onto every work item', () => {
@@ -110,7 +120,12 @@ test.describe('buildVisualRunPlan', () => {
     expect(workItems[0].targets).toHaveLength(1);
     expect(workItems[0].targets[0].target).toEqual(extra);
     expect(workItems[0].targets[0].baselineName).toBe(
-      baselineName(extra, { browser: 'chromium', platform: 'ci', device: 'desktop' })
+      baselineName(extra, {
+        browser: 'chromium',
+        platform: 'ci',
+        device: 'desktop',
+        scenarioId: 'home-desktop-accepted-es-ads_on'
+      })
     );
   });
 

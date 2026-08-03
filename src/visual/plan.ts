@@ -6,6 +6,13 @@ export interface BaselinePartition {
   browser: string;
   platform: string;
   device: 'desktop' | 'mobile';
+  /**
+   * Optional scenario discriminator (e.g. the scenario id encoding
+   * page/consent/country/ads). When present it is folded into the baseline
+   * name so scenarios that render differently (e.g. consent accepted vs
+   * rejected) never share — and thus never overwrite — one baseline.
+   */
+  scenarioId?: string;
 }
 
 /** Lowercase, `[a-z0-9]+` runs joined by `-`, trimmed of leading/trailing dashes. */
@@ -17,13 +24,15 @@ function slugify(value: string): string {
 }
 
 /**
- * Deterministic baseline name for `target` partitioned by browser/platform/device:
- * `<targetId>__<browser>-<platform>-<device>`, all components slugged.
+ * Deterministic baseline name for `target` partitioned by browser/platform/device
+ * and, when supplied, the scenario id:
+ * `<targetId>__[<scenarioId>__]<browser>-<platform>-<device>`, all components slugged.
  */
 export function baselineName(target: VisualTarget, partition: BaselinePartition): string {
   const id = targetId(target);
   const suffix = [partition.browser, partition.platform, partition.device].map(slugify).join('-');
-  return `${id}__${suffix}`;
+  const scenarioPart = partition.scenarioId ? `${slugify(partition.scenarioId)}__` : '';
+  return `${id}__${scenarioPart}${suffix}`;
 }
 
 /** A narrow, justified override of the policy's default `maxDiffPixelRatio`. */
