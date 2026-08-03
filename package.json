@@ -12,6 +12,7 @@
     "test:headed": "playwright test --headed",
     "report": "playwright show-report reports/html",
     "orchestrate": "tsx src/orchestrator/cli.ts",
+    "dashboard": "tsx src/dashboard/cli.ts",
     "plan": "tsx src/scenarios/plan-cli.ts",
     "baseline:update": "tsx src/baseline/cli.ts",
     "typecheck": "tsc --noEmit",
