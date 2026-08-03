@@ -5,3 +5,6 @@ export * from './server.js';
 export * from './jobs.js';
 export * from './run-controller.js';
 export * from './api-router.js';
+export * from './report-reader.js';
+export * from './report-page.js';
+export * from './report-router.js';

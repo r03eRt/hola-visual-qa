@@ -52,6 +52,9 @@ JSON. This is the CLI/result/artifact contract the note below refers to.
 
 30. `feature/local-dashboard-shell`
 31. `feature/local-dashboard-runner`
-32. `feature-local-dashboard-report-viewer`
+32. `feature/local-dashboard-report-viewer` (#69) — read-only HTML viewer:
+    `GET /runs` lists persisted runs, `GET /runs/:id` renders the run summary and
+    per-scenario verdicts. No images served; reconstructs a domain `RunResult`
+    from persisted manifest/summary/result JSON via the artifacts path builders.
 
 Do not jump to dashboard work before the CLI/result/artifact contracts are verified.
