@@ -84,6 +84,15 @@ test.describe('baselineName', () => {
   test('embeds the target id and slugged partition components', () => {
     expect(baselineName(component, desktopChromeLinux)).toBe('component-header-nav__chromium-linux-desktop');
   });
+
+  test('folds in the scenario id when provided, keeping variants distinct', () => {
+    const accepted = baselineName(fullPage, { ...desktopChromeLinux, scenarioId: 'home-desktop-accepted-es-ads_on' });
+    const rejected = baselineName(fullPage, { ...desktopChromeLinux, scenarioId: 'home-desktop-rejected-es-ads_on' });
+    expect(accepted).toBe('full-page__home-desktop-accepted-es-ads-on__chromium-linux-desktop');
+    expect(accepted).not.toBe(rejected);
+    // Backward compatible: no scenarioId → unchanged name.
+    expect(baselineName(fullPage, desktopChromeLinux)).toBe('full-page__chromium-linux-desktop');
+  });
 });
 
 test.describe('resolveTargetPlan', () => {

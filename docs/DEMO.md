@@ -126,9 +126,8 @@ no masks are needed for this first target.
 - The committed PNGs are **local Chromium (darwin)** renders. A linux CI run may
   diff on antialiasing, so the gated `visual` CI job stays gated until linux
   baselines are generated and reviewed there.
-- consent/ads scenario variants currently **share one baseline** per device
-  (they render identically on `example.com`); a follow-up should partition
-  baselines per scenario for sites where consent changes the page.
+- Each scenario has its **own** baseline (partitioned by scenario id since #79),
+  so consent/ads variants never share or overwrite one image.
 - The baseline creation is recorded with a written reason in
   `baselines/UPDATE_LOG.jsonl`.
 
