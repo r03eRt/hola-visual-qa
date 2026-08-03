@@ -46,6 +46,10 @@
 
 ## Later
 
+Prerequisite (done): `feature/execution-run-contract` (#65) — bridges a real
+Playwright run into a domain `RunResult` and persists manifest/summary/result
+JSON. This is the CLI/result/artifact contract the note below refers to.
+
 30. `feature/local-dashboard-shell`
 31. `feature/local-dashboard-runner`
 32. `feature-local-dashboard-report-viewer`

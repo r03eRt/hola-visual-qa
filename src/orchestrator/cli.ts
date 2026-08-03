@@ -1,17 +1,16 @@
 import { loadConfig } from '../config/load-config.js';
 import { planScenarios } from '../scenarios/index.js';
-import { buildVisualRunPlan } from './run-plan.js';
-import { runVisualSuite } from './orchestrator.js';
+import { summaryPath } from '../artifacts/paths.js';
+import { executeRun } from './run.js';
 
 const updateSnapshots = process.argv.includes('--update');
 
 const config = loadConfig();
 const { scenarios } = planScenarios(config);
 
-// Build the run plan up front so an invalid config/plan fails before any
-// browser process is spawned. The plan is deterministic and touches no
-// browser; the Playwright suite re-derives it from the same inputs.
-buildVisualRunPlan({ config, scenarios });
+const result = await executeRun({ config, scenarios, updateSnapshots });
 
-const result = await runVisualSuite({ scenarios, updateSnapshots });
-process.exitCode = result.exitCode;
+console.log(`Run ${result.runId} complete.`);
+console.log(`Summary: ${summaryPath(config.artifacts.outputDir, result.runId)}`);
+
+process.exitCode = result.deterministicFailure ? 1 : 0;
