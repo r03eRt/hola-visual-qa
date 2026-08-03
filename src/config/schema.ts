@@ -128,6 +128,20 @@ const DiscoveryPolicySchema = z
   })
   .strict();
 
+const EvidencePolicySchema = z
+  .object({
+    sensitiveQueryParams: z
+      .array(z.string().min(1))
+      .default(['token', 'access_token', 'api_key', 'apikey', 'key', 'password', 'secret', 'sig', 'signature', 'auth', 'session']),
+    maxConsoleEntries: z.number().int().min(0).default(50),
+    maxNetworkEntries: z.number().int().min(0).default(50),
+    maxErrors: z.number().int().min(0).default(20),
+    maxFieldChars: z.number().int().min(1).default(2000),
+    includeImages: z.boolean().default(true),
+    includeResponseBodies: z.boolean().default(false)
+  })
+  .strict();
+
 export const ProjectConfigSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -142,7 +156,8 @@ export const ProjectConfigSchema = z
     artifacts: ArtifactPolicySchema,
     ai: AiPolicySchema,
     execution: ExecutionPolicySchema,
-    discovery: DiscoveryPolicySchema.optional()
+    discovery: DiscoveryPolicySchema.optional(),
+    evidence: EvidencePolicySchema.optional()
   })
   .strict();
 
@@ -157,3 +172,13 @@ export type ArtifactPolicy = z.output<typeof ArtifactPolicySchema>;
 export type AiPolicy = z.output<typeof AiPolicySchema>;
 export type ExecutionPolicy = z.output<typeof ExecutionPolicySchema>;
 export type DiscoveryPolicy = z.output<typeof DiscoveryPolicySchema>;
+export type EvidencePolicy = z.output<typeof EvidencePolicySchema>;
+
+/**
+ * Resolves a fully-defaulted `EvidencePolicy` from a `ProjectConfig`, using
+ * `EvidencePolicySchema` as the single source of defaults so there is no
+ * drift between the config schema and the evidence module that consumes it.
+ */
+export function resolveEvidencePolicy(config: ProjectConfig): EvidencePolicy {
+  return EvidencePolicySchema.parse(config.evidence ?? {});
+}
