@@ -49,6 +49,33 @@ test.describe('ProjectConfig schema', () => {
     expect(result.success).toBe(false);
   });
 
+  test('defaults placements to an empty list and accepts a valid placement', () => {
+    const empty = ProjectConfigSchema.safeParse(validConfig());
+    expect(empty.success).toBe(true);
+    if (empty.success) {
+      expect(empty.data.placements).toEqual([]);
+    }
+
+    const withPlacement = ProjectConfigSchema.safeParse({
+      ...validConfig(),
+      placements: [{ id: 'top', pages: ['/'], containerSelector: '#ad', allowedSizes: [{ width: 970, height: 250 }] }]
+    });
+    expect(withPlacement.success).toBe(true);
+    if (withPlacement.success) {
+      expect(withPlacement.data.placements).toHaveLength(1);
+      expect(withPlacement.data.placements[0].timeoutMs).toBe(10_000);
+      expect(withPlacement.data.placements[0].visibility).toEqual({ desktop: true, mobile: true });
+    }
+  });
+
+  test('rejects a placement carrying a secret-looking field', () => {
+    const result = ProjectConfigSchema.safeParse({
+      ...validConfig(),
+      placements: [{ id: 'top', pages: ['/'], containerSelector: '#ad', allowedSizes: [{ width: 970, height: 250 }], token: 'nope' }]
+    });
+    expect(result.success).toBe(false);
+  });
+
   test('aggregates multiple validation issues together instead of failing fast', () => {
     const brokenConfig = {
       schemaVersion: 1,

@@ -144,4 +144,19 @@ test.describe('buildVisualRunPlan', () => {
     buildVisualRunPlan({ config: baseConfig(), scenarios });
     expect(scenarios.map((s) => s.id)).toEqual(snapshot);
   });
+
+  test('defaults placements to an empty list when the config declares none', () => {
+    const { workItems } = buildVisualRunPlan({ config: baseConfig(), scenarios: [scenario()] });
+    expect(workItems[0].placements).toEqual([]);
+  });
+
+  test('threads the page-applicable placements onto each work item', () => {
+    const placements = [
+      { id: 'home-banner', pages: ['/'], containerSelector: '#top', allowedSizes: [{ width: 970, height: 250 }] },
+      { id: 'pricing-banner', pages: ['/pricing'], containerSelector: '#px', allowedSizes: [{ width: 300, height: 250 }] }
+    ];
+    const config = baseConfig({ placements } as Partial<ProjectConfig>);
+    const { workItems } = buildVisualRunPlan({ config, scenarios: [scenario({ page: { path: '/' } })] });
+    expect(workItems[0].placements.map((p) => p.id)).toEqual(['home-banner']);
+  });
 });
