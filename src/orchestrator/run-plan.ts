@@ -1,5 +1,6 @@
 import type { ProjectConfig } from '../config/schema.js';
 import type { Scenario } from '../domain/index.js';
+import { placementsForScenario, type PlacementDefinition } from '../placements/index.js';
 import { readinessPolicyFromConfig, type ReadinessPolicy } from '../stability/index.js';
 import { baselineName, type VisualTarget } from '../visual/index.js';
 
@@ -17,6 +18,8 @@ export interface ScenarioWorkItem {
   readiness: ReadinessPolicy;
   /** At least the default full-page target. */
   targets: TargetWorkItem[];
+  /** Placement definitions applicable to this scenario's page (may be empty). */
+  placements: PlacementDefinition[];
 }
 
 export interface VisualRunPlan {
@@ -83,7 +86,8 @@ export function buildVisualRunPlan(input: BuildRunPlanInput): VisualRunPlan {
       scenario,
       url: joinUrl(config.baseUrl, scenario.page.path),
       readiness,
-      targets: targetItems
+      targets: targetItems,
+      placements: placementsForScenario(config.placements ?? [], scenario)
     };
   });
 

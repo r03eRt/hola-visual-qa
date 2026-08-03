@@ -5,3 +5,4 @@ export * from './events.js';
 export * from './request.js';
 export * from './render.js';
 export * from './layout-shift.js';
+export * from './select.js';

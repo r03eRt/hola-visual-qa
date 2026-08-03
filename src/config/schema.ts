@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PlacementDefinitionSchema } from '../placements/model.js';
 
 /**
  * Canonical, non-secret project configuration schema.
@@ -163,7 +164,8 @@ export const ProjectConfigSchema = z
     ai: AiPolicySchema,
     execution: ExecutionPolicySchema,
     discovery: DiscoveryPolicySchema.optional(),
-    evidence: EvidencePolicySchema.optional()
+    evidence: EvidencePolicySchema.optional(),
+    placements: z.array(PlacementDefinitionSchema).default([])
   })
   .strict();
 

@@ -6,6 +6,7 @@ import { verifyConsentState } from '../../src/consent/state-verifier.js';
 import { createDiagnosticsCollector } from '../../src/diagnostics/collector.js';
 import { preparePage } from '../../src/stability/readiness.js';
 import { buildVisualRunPlan } from '../../src/orchestrator/run-plan.js';
+import { readContainerState, evaluateContainer, assertContainer } from '../../src/placements/index.js';
 
 /**
  * Replaces the retired `tests/visual/homepage.spec.ts` scaffold. Wires the
@@ -56,6 +57,15 @@ for (const workItem of plan.workItems) {
     // the authoritative pass/fail signal.
     const report = await verifyConsentState(page, adapter);
     expect(report.signals.cookie.satisfied).toBe(true);
+
+    // Deterministic ad container checks (explicit rules, never an LLM). Each
+    // configured placement applicable to this page has its real container
+    // state read and asserted (presence/visibility/size). A no-op when the
+    // config declares no placements, keeping the default run unchanged.
+    for (const placement of workItem.placements) {
+      const raw = await readContainerState(page, placement);
+      assertContainer(evaluateContainer(placement, scenario.device, raw));
+    }
 
     const mask = workItem.readiness.maskSelectors.map((selector) => page.locator(selector));
 

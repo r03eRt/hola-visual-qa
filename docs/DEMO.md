@@ -86,6 +86,33 @@ export VISUAL_SCENARIOS="home-desktop-accepted-es-ads_on,home-mobile-accepted-es
 BASE_URL="$BASE_URL" npm run test:visual
 ```
 
+## Configuring ad placement checks (container stage)
+
+Ad placements are checked deterministically in the browser (no LLM). Declare
+them under `placements` in `visual-qa.config.ts` — an empty/absent list is a
+no-op, so runs without placements are unaffected:
+
+```ts
+placements: [
+  {
+    id: 'top-banner',
+    pages: ['/'],                       // matched by page path OR page name
+    containerSelector: '#top-ad-slot',
+    allowedSizes: [{ width: 970, height: 250 }],
+    visibility: { desktop: true, mobile: false }  // optional; defaults true/true
+  }
+]
+```
+
+For every scenario whose page matches `pages`, the run reads the container's
+real DOM state and **fails the test** when the container is missing, not
+visible, or sized outside `allowedSizes` (within a 1px tolerance) — or, where
+`visibility` says it should be hidden, when it is unexpectedly visible. The
+failure message names only the placement id and a report-safe reason (e.g.
+`Placement "top-banner" container check failed: container missing`); the
+selector value and page content are never leaked. Request/render and
+layout-shift checks are separate, later slices.
+
 ## Notes
 
 - Playwright and explicit rules decide pass/fail; no LLM ever does.

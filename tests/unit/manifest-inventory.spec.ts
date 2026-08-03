@@ -22,7 +22,8 @@ function validConfig(): ProjectConfig {
     diagnostics: { captureConsole: true, captureNetwork: true, ignoredDomains: [] },
     artifacts: { outputDir: 'reports', retainOnFailureOnly: true },
     ai: { enabled: false, provider: 'none', timeoutMs: 30_000, maxOutputTokens: 1024, maxAttempts: 2, maxCostUsd: 0.5 },
-    execution: { retries: 0 }
+    execution: { retries: 0 },
+    placements: []
   } as ProjectConfig;
 }
 
