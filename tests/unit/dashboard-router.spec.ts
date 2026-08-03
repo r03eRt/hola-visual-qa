@@ -21,6 +21,14 @@ test.describe('handleDashboardRequest', () => {
     expect(response.body).not.toContain('src="//');
   });
 
+  test('GET / links to the report viewer and drops the stale "not yet available" notice', () => {
+    const response = handleDashboardRequest({ method: 'GET', path: '/' });
+
+    expect(response.body).toContain('href="/runs"');
+    expect(response.body).toContain('href="/healthz"');
+    expect(response.body).not.toContain('not yet available');
+  });
+
   test('GET /healthz returns status ok as exact JSON', () => {
     const response = handleDashboardRequest({ method: 'GET', path: '/healthz' });
 
