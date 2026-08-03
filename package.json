@@ -16,6 +16,7 @@
     "plan": "tsx src/scenarios/plan-cli.ts",
     "baseline:update": "tsx src/baseline/cli.ts",
     "typecheck": "tsc --noEmit",
+    "build:web": "npm --prefix web install && npm --prefix web run build",
     "lint": "eslint .",
     "validate": "npm run typecheck && npm run test:visual",
     "feature:new": "node scripts/new-feature.mjs",

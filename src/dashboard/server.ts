@@ -1,9 +1,12 @@
 import * as http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { DashboardConfig } from './config.js';
-import { handleDashboardRequest } from './router.js';
+import { handleDashboardRequest, type DashboardResponse } from './router.js';
 import { handleApiRequest } from './api-router.js';
 import { handleWebApiRequest, type WebApiDeps } from './web-api-router.js';
 import { handleReportRequest, type ReportRouterDeps } from './report-router.js';
+import { handleStaticRequest, type StaticServerDeps } from './static-server.js';
 import { JobStore } from './jobs.js';
 import type { RunControllerDeps } from './run-controller.js';
 import { loadConfig } from '../config/load-config.js';
@@ -25,6 +28,7 @@ export interface DashboardServerDeps {
   router?: typeof handleDashboardRequest;
   runDeps?: RunControllerDeps;
   reportDeps?: ReportRouterDeps;
+  staticDeps?: StaticServerDeps;
 }
 
 /** Hard cap on `/api/*` request bodies; larger bodies are rejected with 413. */
@@ -47,15 +51,29 @@ function defaultReportRouterDeps(): ReportRouterDeps {
   return { reader: { outputDir: loadConfig().artifacts.outputDir } };
 }
 
+// Resolved relative to this file's location (src/dashboard/server.ts) rather
+// than process.cwd(), so the dashboard finds the built SPA regardless of the
+// working directory it is started from.
+const DEFAULT_WEB_DIST_DIR = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../web/dist');
+
+function defaultStaticDeps(): StaticServerDeps {
+  return { webDistDir: DEFAULT_WEB_DIST_DIR };
+}
+
 export interface DashboardHandle {
   url: string;
   port: number;
   close(): Promise<void>;
 }
 
-function writeResponse(res: http.ServerResponse, response: { status: number; contentType: string; body: string }): void {
+function writeResponse(res: http.ServerResponse, response: DashboardResponse): void {
   res.statusCode = response.status;
   res.setHeader('Content-Type', response.contentType);
+  if (response.headers) {
+    for (const [name, value] of Object.entries(response.headers)) {
+      res.setHeader(name, value);
+    }
+  }
   res.end(response.body);
 }
 
@@ -70,6 +88,9 @@ export function createDashboardServer(
   // Resolved ONCE per server, from the committed config's artifacts.outputDir,
   // so the report reader is not re-derived per request.
   const reportDeps = deps.reportDeps ?? defaultReportRouterDeps();
+  // Resolved ONCE per server; defaults to the repo's `web/dist` (see
+  // DEFAULT_WEB_DIST_DIR above), overridable for tests via an injected temp dir.
+  const staticDeps = deps.staticDeps ?? defaultStaticDeps();
   // Reuses the SAME resolveScenarios/reader as runDeps/reportDeps (per
   // docs/features/dashboard-web-api/SPEC.md) rather than re-deriving them,
   // so `/api/scenarios` ids always match what `POST /api/runs` accepts.
@@ -80,14 +101,21 @@ export function createDashboardServer(
     const method = req.method ?? 'GET';
 
     if (!url.pathname.startsWith('/api/')) {
-      handleReportRequest(method, url.pathname, reportDeps)
-        .then((reportResponse) => {
-          if (reportResponse) {
-            writeResponse(res, reportResponse);
+      handleStaticRequest(method, url.pathname, staticDeps)
+        .then((staticResponse) => {
+          if (staticResponse) {
+            writeResponse(res, staticResponse);
             return;
           }
-          const response = router({ method, path: url.pathname });
-          writeResponse(res, response);
+
+          return handleReportRequest(method, url.pathname, reportDeps).then((reportResponse) => {
+            if (reportResponse) {
+              writeResponse(res, reportResponse);
+              return;
+            }
+            const response = router({ method, path: url.pathname });
+            writeResponse(res, response);
+          });
         })
         .catch(() => {
           writeResponse(res, { status: 500, contentType: 'application/json', body: '{"error":"internal_error"}' });
