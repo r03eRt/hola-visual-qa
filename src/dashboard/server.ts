@@ -2,6 +2,7 @@ import * as http from 'node:http';
 import type { DashboardConfig } from './config.js';
 import { handleDashboardRequest } from './router.js';
 import { handleApiRequest } from './api-router.js';
+import { handleWebApiRequest, type WebApiDeps } from './web-api-router.js';
 import { handleReportRequest, type ReportRouterDeps } from './report-router.js';
 import { JobStore } from './jobs.js';
 import type { RunControllerDeps } from './run-controller.js';
@@ -69,6 +70,10 @@ export function createDashboardServer(
   // Resolved ONCE per server, from the committed config's artifacts.outputDir,
   // so the report reader is not re-derived per request.
   const reportDeps = deps.reportDeps ?? defaultReportRouterDeps();
+  // Reuses the SAME resolveScenarios/reader as runDeps/reportDeps (per
+  // docs/features/dashboard-web-api/SPEC.md) rather than re-deriving them,
+  // so `/api/scenarios` ids always match what `POST /api/runs` accepts.
+  const webApiDeps: WebApiDeps = { resolveScenarios: runDeps.resolveScenarios, reader: reportDeps.reader };
 
   return http.createServer((req, res) => {
     const url = new URL(req.url ?? '/', 'http://localhost');
@@ -117,15 +122,22 @@ export function createDashboardServer(
 
       const body = Buffer.concat(chunks).toString('utf-8');
 
-      handleApiRequest(method, url.pathname, body, runDeps)
-        .then((response) => {
-          if (response) {
-            writeResponse(res, response);
+      handleWebApiRequest(method, url.pathname, webApiDeps)
+        .then((webResponse) => {
+          if (webResponse) {
+            writeResponse(res, webResponse);
             return;
           }
 
-          const fallback = router({ method, path: url.pathname });
-          writeResponse(res, fallback);
+          return handleApiRequest(method, url.pathname, body, runDeps).then((response) => {
+            if (response) {
+              writeResponse(res, response);
+              return;
+            }
+
+            const fallback = router({ method, path: url.pathname });
+            writeResponse(res, fallback);
+          });
         })
         .catch(() => {
           writeResponse(res, { status: 500, contentType: 'application/json', body: '{"error":"internal_error"}' });
