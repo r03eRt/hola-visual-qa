@@ -1,0 +1,130 @@
+name: Update visual baselines
+
+# MANUAL-ONLY mechanism to (re)generate visual baselines for ALL browser
+# projects on the CI platform (linux), then open a PR for HUMAN REVIEW. It
+# NEVER pushes to main and NEVER auto-merges — per AGENTS.md a snapshot change
+# requires a written reason and human review. Run it from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Written reason for regenerating baselines (required; recorded in the audit log and PR).'
+        required: true
+        type: string
+      scenarios:
+        description: 'Optional comma-separated scenario ids to limit the update (VISUAL_SCENARIOS). Empty = all.'
+        required: false
+        type: string
+      projects:
+        description: 'Optional space-separated Playwright projects (e.g. "desktop-chromium desktop-webkit"). Empty = all.'
+        required: false
+        type: string
+
+# Least privilege: only what is needed to push a branch and open a PR.
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-baselines
+  cancel-in-progress: false
+
+jobs:
+  update-baselines:
+    name: Regenerate baselines and open a review PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail early if no QA target is configured
+        env:
+          BASE_URL: ${{ secrets.QA_BASE_URL }}
+        run: |
+          if [ -z "${BASE_URL}" ]; then
+            echo "::error::QA_BASE_URL secret is not set; cannot generate baselines."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium webkit firefox
+
+      - name: Regenerate baselines against the QA target
+        env:
+          BASE_URL: ${{ secrets.QA_BASE_URL }}
+          VISUAL_SCENARIOS: ${{ inputs.scenarios }}
+          PROJECTS: ${{ inputs.projects }}
+        run: |
+          # `|| true` so a first-run diff/failure still lets us collect the
+          # freshly written baselines; the review PR (not this job) is the gate.
+          if [ -n "${PROJECTS}" ]; then
+            # Allowlist: reject anything but known-safe project-name tokens.
+            if ! printf '%s' "${PROJECTS}" | grep -Eq '^[a-z0-9 _-]+$'; then
+              echo "::error::Invalid 'projects' input; only [a-z0-9 _-] allowed."
+              exit 1
+            fi
+            PROJECT_FLAGS=""
+            for p in ${PROJECTS}; do PROJECT_FLAGS="$PROJECT_FLAGS --project=$p"; done
+            npx playwright test tests/visual --update-snapshots $PROJECT_FLAGS || true
+          else
+            npm run test:update || true
+          fi
+
+      - name: Record a reasoned audit line
+        env:
+          REASON: ${{ inputs.reason }}
+        run: node scripts/log-baseline-update.mjs --reason "${REASON}"
+
+      - name: Stop if nothing changed
+        id: diff
+        run: |
+          if git diff --quiet -- baselines; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No baseline changes; nothing to review."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload baselines audit as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-baselines
+          # Only path-safe evidence: the PNG baselines and the audit log. The
+          # Playwright HTML report is intentionally NOT uploaded — it can embed
+          # the QA_BASE_URL secret and target page content/traces.
+          path: |
+            baselines/**/*.png
+            baselines/UPDATE_LOG.jsonl
+          if-no-files-found: ignore
+
+      - name: Open a review PR
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          BRANCH="baselines/update-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add baselines
+          git commit -m "chore(baselines): regenerate via CI (run ${GITHUB_RUN_ID})" \
+            -m "Reason: ${REASON}" \
+            -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+          git push origin "$BRANCH"
+          gh label create baselines --description "Regenerated visual baselines awaiting review" --color BFD4F2 --force || true
+          printf '%s\n\n%s\n\n%s\n' \
+            "Automated baseline regeneration for all browser projects on linux CI." \
+            "**Reason:** ${REASON}" \
+            "Review every changed image before merging — baselines are evidence and are never auto-approved (AGENTS.md). Do NOT merge without inspecting the diff." > /tmp/pr-body.md
+          gh pr create \
+            --title "chore(baselines): regenerate visual baselines (run ${GITHUB_RUN_ID})" \
+            --body-file /tmp/pr-body.md \
+            --label "baselines" \
+            --draft
