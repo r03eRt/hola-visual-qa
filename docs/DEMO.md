@@ -131,3 +131,24 @@ no masks are needed for this first target.
 - The baseline creation is recorded with a written reason in
   `baselines/UPDATE_LOG.jsonl`.
 
+## Generating baselines in CI (all browsers)
+
+The local macOS 13 environment cannot install `webkit`/`firefox`, so baselines
+for those projects — and platform-correct **linux** chromium baselines — are
+produced by the manual **"Update visual baselines"** workflow
+(`.github/workflows/update-baselines.yml`), which routes every regeneration
+through a human-reviewed PR (it never pushes to `main` and never auto-merges).
+
+1. Set the `QA_BASE_URL` repository secret to a reachable, stable QA target.
+2. Actions → **Update visual baselines** → **Run workflow**. Provide a
+   **reason** (required); optionally limit `scenarios` (comma-separated ids) or
+   `projects` (e.g. `desktop-webkit desktop-firefox`).
+3. The workflow installs chromium+webkit+firefox, runs `test:update` against the
+   secret target, appends a reasoned line to `baselines/UPDATE_LOG.jsonl`,
+   uploads the baselines + HTML report as artifacts, and opens a **draft PR** on
+   a `baselines/update-<run-id>` branch.
+4. **Review every changed image** in that PR before merging — baselines are
+   evidence and are never auto-approved. Once merged, the gated `visual` CI job
+   asserts green against them (and can then be promoted to a required check).
+
+

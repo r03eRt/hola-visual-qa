@@ -64,3 +64,5 @@ Do not jump to dashboard work before the CLI/result/artifact contracts are verif
 - `feature/dashboard-web-api` (#73) — JSON API (`/api/scenarios`, `/api/reports`, `/api/reports/:id`) for the browser UI.
 - `feature/dashboard-web-ui` (#75) — React SPA served at `/app` by a bounded static server with a strict CSP.
 - `feature/e2e-visual-baseline` (#77) — config-driven `visual.maskSelectors`, plus the first reviewed baselines against `https://example.com` and a green chromium visual run. Follow-up: webkit/firefox + linux-CI baselines, and per-scenario baseline partitioning.
+- `feature/scenario-baseline-partition` (#79) — fold `scenarioId` into `baselineName` so consent/ads variants no longer share a baseline; example.com baselines repartitioned to 8 per-scenario files.
+- `feature/ci-baseline-generation` (#81) — manual `update-baselines` workflow that regenerates all-browser baselines on linux and opens a human-reviewed PR (never auto-merged). Unblocks webkit/firefox + linux baselines once `QA_BASE_URL` is set.
