@@ -110,6 +110,31 @@ test.describe('normalizeError', () => {
     expect(err.message).not.toContain('at Object.<anonymous>');
   });
 
+  test('redacts absolute filesystem paths (and the OS username) but preserves URLs', () => {
+    const posix = normalizeError(
+      new Error(
+        "A snapshot doesn't exist at /Users/alice/work/hola-visual-qa/tests/visual/home-snapshots/expected.png, writing actual."
+      ),
+      { category: 'visual_regression', phase: 'assertion' }
+    );
+    expect(posix.message).not.toContain('/Users/alice');
+    expect(posix.message).not.toContain('alice');
+    expect(posix.message).toContain('[redacted-path]');
+
+    const windows = normalizeError(new Error('Failed writing C:\\Users\\bob\\reports\\actual.png'), {
+      category: 'visual_regression',
+      phase: 'assertion'
+    });
+    expect(windows.message).not.toContain('C:\\Users\\bob');
+    expect(windows.message).toContain('[redacted-path]');
+
+    const withUrl = normalizeError(new Error('navigation to https://example.com/products/42 failed'), {
+      category: 'navigation_error',
+      phase: 'navigation'
+    });
+    expect(withUrl.message).toContain('https://example.com/products/42');
+  });
+
   test('defaults AI-provider errors to severity warning', () => {
     const err = normalizeError(new Error('AI provider request failed'), {
       category: 'ai_provider_error',

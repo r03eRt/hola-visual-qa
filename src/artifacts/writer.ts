@@ -6,8 +6,8 @@
 
 import { mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { RunManifest, RunSummary } from '../domain/index.js';
-import { manifestPath, reportIndexPath, runDir, scenarioDir, summaryPath } from './paths.js';
+import type { RunManifest, RunSummary, ScenarioResult } from '../domain/index.js';
+import { manifestPath, reportIndexPath, runDir, scenarioDir, scenarioResultPath, summaryPath } from './paths.js';
 
 /** Creates `<outputDir>/<runId>` and `<outputDir>/<runId>/report`. */
 export async function ensureRunDir(outputDir: string, runId: string): Promise<string> {
@@ -65,5 +65,20 @@ export async function writeSummary(
 ): Promise<string> {
   const destination = summaryPath(outputDir, runId);
   await writeFileAtomic(destination, `${JSON.stringify(summary, null, 2)}\n`);
+  return destination;
+}
+
+/**
+ * Writes `scenarios/<scenarioId>/result.json` atomically and returns the
+ * absolute path written. Mirrors `writeManifest`/`writeSummary`.
+ */
+export async function writeScenarioResult(
+  outputDir: string,
+  runId: string,
+  scenarioId: string,
+  result: ScenarioResult
+): Promise<string> {
+  const destination = scenarioResultPath(outputDir, runId, scenarioId);
+  await writeFileAtomic(destination, `${JSON.stringify(result, null, 2)}\n`);
   return destination;
 }

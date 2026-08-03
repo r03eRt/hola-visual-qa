@@ -85,6 +85,7 @@ const WARNING_BY_DEFAULT_CATEGORIES: ReadonlySet<ErrorCategory> = new Set(['ai_p
 // --- Redaction guard -------------------------------------------------------
 
 const REDACTED = '[redacted]';
+const REDACTED_PATH = '[redacted-path]';
 
 /**
  * Strips obvious secret-shaped substrings (auth headers, cookie values,
@@ -114,6 +115,14 @@ function redactSecrets(message: string): string {
 
   // sk-... style API tokens (OpenAI/Anthropic-like) anywhere else in the text.
   redacted = redacted.replace(/\bsk-[A-Za-z0-9_-]{8,}/g, REDACTED);
+
+  // Absolute filesystem paths (POSIX /a/b… and Windows C:\a\b…) — strip machine
+  // paths and the OS username they embed (e.g. Playwright snapshot-assertion
+  // errors report `…at /Users/<name>/…/expected.png`). A URL begins with a
+  // scheme (http:, file:), so only a whitespace-delimited token that STARTS
+  // with '/' and has at least two path segments is treated as a local path.
+  redacted = redacted.replace(/(^|\s)(\/[^\s/]+(?:\/[^\s]*)+)/g, `$1${REDACTED_PATH}`);
+  redacted = redacted.replace(/\b[A-Za-z]:\\[^\s]+/g, REDACTED_PATH);
 
   // Bearer <token>
   redacted = redacted.replace(/\bBearer\s+\S+/gi, `Bearer ${REDACTED}`);
