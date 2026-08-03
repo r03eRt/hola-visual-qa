@@ -58,3 +58,9 @@ JSON. This is the CLI/result/artifact contract the note below refers to.
     from persisted manifest/summary/result JSON via the artifacts path builders.
 
 Do not jump to dashboard work before the CLI/result/artifact contracts are verified.
+
+## Post-roadmap (web UI + verification)
+
+- `feature/dashboard-web-api` (#73) — JSON API (`/api/scenarios`, `/api/reports`, `/api/reports/:id`) for the browser UI.
+- `feature/dashboard-web-ui` (#75) — React SPA served at `/app` by a bounded static server with a strict CSP.
+- `feature/e2e-visual-baseline` (#77) — config-driven `visual.maskSelectors`, plus the first reviewed baselines against `https://example.com` and a green chromium visual run. Follow-up: webkit/firefox + linux-CI baselines, and per-scenario baseline partitioning.

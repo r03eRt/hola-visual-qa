@@ -19,7 +19,7 @@ function baseConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfig {
       ads: [true, false]
     },
     adapters: { consent: {}, ads: {}, country: {} },
-    visual: { maxDiffPixelRatio: 0.01, animations: 'disabled' },
+    visual: { maxDiffPixelRatio: 0.01, animations: 'disabled', maskSelectors: ['[data-visual-mask]'] },
     diagnostics: { captureConsole: true, captureNetwork: true, ignoredDomains: [] },
     artifacts: { outputDir: 'reports', retainOnFailureOnly: true },
     ai: { enabled: false, provider: 'none' },
@@ -94,7 +94,7 @@ test.describe('buildVisualRunPlan', () => {
   });
 
   test('wires the config-derived readiness policy onto every work item', () => {
-    const config = baseConfig({ visual: { maxDiffPixelRatio: 0.02, animations: 'allow' } });
+    const config = baseConfig({ visual: { maxDiffPixelRatio: 0.02, animations: 'allow', maskSelectors: ['[data-visual-mask]'] } });
     const { workItems } = buildVisualRunPlan({ config, scenarios: [scenario()] });
     expect(workItems[0].readiness).toEqual(readinessPolicyFromConfig(config));
     expect(workItems[0].readiness.animations).toBe('allow');

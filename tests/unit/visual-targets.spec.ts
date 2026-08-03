@@ -11,7 +11,7 @@ import {
 } from '../../src/visual/index.js';
 
 function policy(overrides: Partial<VisualPolicy> = {}): VisualPolicy {
-  return { maxDiffPixelRatio: 0.01, animations: 'disabled', ...overrides };
+  return { maxDiffPixelRatio: 0.01, animations: 'disabled', maskSelectors: ['[data-visual-mask]'], ...overrides };
 }
 
 const desktopChromeLinux: BaselinePartition = { browser: 'chromium', platform: 'linux', device: 'desktop' };
