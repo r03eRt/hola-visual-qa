@@ -2,6 +2,7 @@ import * as http from 'node:http';
 import type { DashboardConfig } from './config.js';
 import { handleDashboardRequest } from './router.js';
 import { handleApiRequest } from './api-router.js';
+import { handleReportRequest, type ReportRouterDeps } from './report-router.js';
 import { JobStore } from './jobs.js';
 import type { RunControllerDeps } from './run-controller.js';
 import { loadConfig } from '../config/load-config.js';
@@ -22,6 +23,7 @@ import { newRunId } from '../artifacts/run-id.js';
 export interface DashboardServerDeps {
   router?: typeof handleDashboardRequest;
   runDeps?: RunControllerDeps;
+  reportDeps?: ReportRouterDeps;
 }
 
 /** Hard cap on `/api/*` request bodies; larger bodies are rejected with 413. */
@@ -38,6 +40,10 @@ function defaultRunControllerDeps(): RunControllerDeps {
     now: () => new Date(),
     generateJobId: (now) => newRunId(now)
   };
+}
+
+function defaultReportRouterDeps(): ReportRouterDeps {
+  return { reader: { outputDir: loadConfig().artifacts.outputDir } };
 }
 
 export interface DashboardHandle {
@@ -60,14 +66,27 @@ export function createDashboardServer(
   // Resolved ONCE per server so job state (and the scenario resolver) persists
   // across requests, rather than being rebuilt per request.
   const runDeps = deps.runDeps ?? defaultRunControllerDeps();
+  // Resolved ONCE per server, from the committed config's artifacts.outputDir,
+  // so the report reader is not re-derived per request.
+  const reportDeps = deps.reportDeps ?? defaultReportRouterDeps();
 
   return http.createServer((req, res) => {
     const url = new URL(req.url ?? '/', 'http://localhost');
     const method = req.method ?? 'GET';
 
     if (!url.pathname.startsWith('/api/')) {
-      const response = router({ method, path: url.pathname });
-      writeResponse(res, response);
+      handleReportRequest(method, url.pathname, reportDeps)
+        .then((reportResponse) => {
+          if (reportResponse) {
+            writeResponse(res, reportResponse);
+            return;
+          }
+          const response = router({ method, path: url.pathname });
+          writeResponse(res, response);
+        })
+        .catch(() => {
+          writeResponse(res, { status: 500, contentType: 'application/json', body: '{"error":"internal_error"}' });
+        });
       return;
     }
 
