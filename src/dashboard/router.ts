@@ -16,6 +16,8 @@ export interface DashboardResponse {
   status: number;
   contentType: string;
   body: string;
+  /** Optional extra response headers (e.g. `Content-Security-Policy`), applied after Content-Type in `server.ts`'s `writeResponse`. */
+  headers?: Record<string, string>;
 }
 
 const KNOWN_PATHS: ReadonlySet<string> = new Set(['/', '/healthz']);

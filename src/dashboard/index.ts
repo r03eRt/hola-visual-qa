@@ -9,3 +9,4 @@ export * from './web-api-router.js';
 export * from './report-reader.js';
 export * from './report-page.js';
 export * from './report-router.js';
+export * from './static-server.js';

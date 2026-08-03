@@ -1,0 +1,105 @@
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: -apple-system, Segoe UI, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 24px;
+  background: #f7f7f9;
+  color: #1c1c1e;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+a {
+  color: #1d4ed8;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tabs button {
+  padding: 8px 16px;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tabs button[aria-selected='true'] {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.scenario-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f2;
+}
+
+.scenario-row label {
+  flex: 1;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.status-running {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.status-completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.error-text {
+  color: #991b1b;
+}
+
+pre {
+  background: #f0f0f2;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.run-list-item {
+  cursor: pointer;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f2;
+}
+
+.run-list-item:hover {
+  background: #f7f7f9;
+}

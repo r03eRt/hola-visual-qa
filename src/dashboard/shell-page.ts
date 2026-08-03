@@ -39,6 +39,7 @@ export function renderShellPage(): string {
 <h1>${escapeHtml(TITLE)}</h1>
 <p>${escapeHtml(INTRO)}</p>
 <nav>
+<a href="/app">Open the visual app</a>
 <a href="/runs">View reports</a>
 <a href="/healthz">Health</a>
 </nav>
