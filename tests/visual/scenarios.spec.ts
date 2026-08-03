@@ -6,7 +6,21 @@ import { verifyConsentState } from '../../src/consent/state-verifier.js';
 import { createDiagnosticsCollector } from '../../src/diagnostics/collector.js';
 import { preparePage } from '../../src/stability/readiness.js';
 import { buildVisualRunPlan } from '../../src/orchestrator/run-plan.js';
-import { readContainerState, evaluateContainer, assertContainer } from '../../src/placements/index.js';
+import {
+  readContainerState,
+  evaluateContainer,
+  assertContainer,
+  toContainerSignals,
+  installPlacementEventBridge,
+  createPlacementEventsCollector,
+  evaluateRequest,
+  toRequestSignals,
+  evaluateRender,
+  toRenderSignals,
+  classifyPlacement,
+  assertPlacementResolved,
+  type PlacementEventsCollector
+} from '../../src/placements/index.js';
 
 /**
  * Replaces the retired `tests/visual/homepage.spec.ts` scaffold. Wires the
@@ -40,6 +54,18 @@ for (const workItem of plan.workItems) {
     // its own (visual assertions below remain authoritative).
     createDiagnosticsCollector(page, config.diagnostics);
 
+    // Install the placement event bridge BEFORE navigation, but only when a
+    // placement on this page declares request/render debug signals — so the
+    // default run (no event-configured placements) is completely unchanged.
+    const eventPlacements = workItem.placements.filter(
+      (placement) => placement.events?.request !== undefined || placement.events?.render !== undefined
+    );
+    let placementEvents: PlacementEventsCollector | undefined;
+    if (eventPlacements.length > 0) {
+      const source = await installPlacementEventBridge(page);
+      placementEvents = createPlacementEventsCollector(source);
+    }
+
     await page.setExtraHTTPHeaders({
       'x-test-country': scenario.country,
       'x-test-ads-enabled': String(scenario.adsEnabled)
@@ -58,13 +84,26 @@ for (const workItem of plan.workItems) {
     const report = await verifyConsentState(page, adapter);
     expect(report.signals.cookie.satisfied).toBe(true);
 
-    // Deterministic ad container checks (explicit rules, never an LLM). Each
-    // configured placement applicable to this page has its real container
-    // state read and asserted (presence/visibility/size). A no-op when the
-    // config declares no placements, keeping the default run unchanged.
+    // Deterministic ad placement checks (explicit rules, never an LLM). The
+    // container stage (presence/visibility/size) is always asserted; when a
+    // placement declares request/render debug signals, the request+render
+    // stages are classified and the terminal verdict asserted too. A no-op
+    // when the config declares no placements, keeping the default run
+    // unchanged.
     for (const placement of workItem.placements) {
       const raw = await readContainerState(page, placement);
-      assertContainer(evaluateContainer(placement, scenario.device, raw));
+      const containerObs = evaluateContainer(placement, scenario.device, raw);
+      assertContainer(containerObs);
+
+      const hasEventSignals = placement.events?.request !== undefined || placement.events?.render !== undefined;
+      if (placementEvents !== undefined && hasEventSignals) {
+        const signals = {
+          ...toContainerSignals(containerObs),
+          ...toRequestSignals(evaluateRequest(placement, placementEvents)),
+          ...toRenderSignals(evaluateRender(placement, placementEvents))
+        };
+        assertPlacementResolved(placement, classifyPlacement(placement.id, signals));
+      }
     }
 
     const mask = workItem.readiness.maskSelectors.map((selector) => page.locator(selector));

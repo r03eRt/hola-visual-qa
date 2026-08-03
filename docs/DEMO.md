@@ -113,6 +113,40 @@ failure message names only the placement id and a report-safe reason (e.g.
 selector value and page content are never leaked. Request/render and
 layout-shift checks are separate, later slices.
 
+### Request/render stages (page-emitted debug events)
+
+Request/render outcomes are semantic and cannot be read from raw network
+traffic, so they arrive as **page-emitted debug events**, not a network
+sniffer. When a placement declares `events`, the run installs a bridge that
+exposes `window.__qaPlacementEvent` — the QA target (or an injected adapter)
+calls it as the ad lifecycle progresses:
+
+```ts
+placements: [
+  {
+    id: 'top-banner',
+    pages: ['/'],
+    containerSelector: '#top-ad-slot',
+    allowedSizes: [{ width: 970, height: 250 }],
+    events: { request: 'adreq', render: 'render' }   // signal names
+  }
+]
+```
+
+```js
+// In the page (site instrumentation or an injected adapter):
+window.__qaPlacementEvent({ placementId: 'top-banner', signal: 'adreq' });
+window.__qaPlacementEvent({ placementId: 'top-banner', signal: 'render:rendered' });
+// outcomes: render:rendered | render:empty | render:provider_error | render:timeout
+```
+
+The run classifies the placement and **fails** on a terminal-unsatisfied state
+(`request_missing`, `empty` without `expectedEmpty`, `provider_error`,
+`timeout`). If no events arrive the stage stays non-terminal — a pass, since the
+model never fabricates a timeout. The bridge hard-normalizes every call to
+`{ placementId, signal }` and drops all other fields, so no URL/payload is
+captured.
+
 ## Notes
 
 - Playwright and explicit rules decide pass/fail; no LLM ever does.
