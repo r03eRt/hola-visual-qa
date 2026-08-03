@@ -107,7 +107,11 @@ const ArtifactPolicySchema = z
 const AiPolicySchema = z
   .object({
     enabled: z.boolean().default(false),
-    provider: z.enum(['anthropic', 'none']).default('none')
+    provider: z.enum(['anthropic', 'none']).default('none'),
+    timeoutMs: z.number().int().min(1).default(30_000),
+    maxOutputTokens: z.number().int().min(1).default(1024),
+    maxAttempts: z.number().int().min(1).default(2),
+    maxCostUsd: z.number().min(0).default(0.5)
   })
   .strict()
   .prefault({});

@@ -38,7 +38,7 @@ function config(): ProjectConfig {
     visual: { maxDiffPixelRatio: 0.01, animations: 'disabled' },
     diagnostics: { captureConsole: true, captureNetwork: true, ignoredDomains: [] },
     artifacts: { outputDir: 'reports', retainOnFailureOnly: true },
-    ai: { enabled: false, provider: 'none' },
+    ai: { enabled: false, provider: 'none', timeoutMs: 30_000, maxOutputTokens: 1024, maxAttempts: 2, maxCostUsd: 0.5 },
     execution: { retries: 0 }
   } as ProjectConfig;
 }
