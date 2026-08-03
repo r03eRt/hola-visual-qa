@@ -6,3 +6,5 @@ export * from './request.js';
 export * from './render.js';
 export * from './layout-shift.js';
 export * from './select.js';
+export * from './bridge.js';
+export * from './resolve.js';
