@@ -68,6 +68,8 @@ export interface FailureItem {
   country: string;
   category: string;
   message: string;
+  page: string;
+  pageName?: string;
 }
 
 export interface PageFailureGroup {
@@ -76,10 +78,15 @@ export interface PageFailureGroup {
   failures: FailureItem[];
 }
 
-const UNKNOWN_ERROR_CATEGORY = 'unknown_error';
-const NO_NORMALIZED_ERROR_MESSAGE = 'Scenario failed without a normalized error';
+export const UNKNOWN_ERROR_CATEGORY = 'unknown_error';
+export const NO_NORMALIZED_ERROR_MESSAGE = 'Scenario failed without a normalized error';
 
-function countsAsFailure(result: ScenarioResult): boolean {
+/**
+ * Single source of truth for "counts as a failure": non-skipped failed
+ * results, plus passed results carrying at least one non-warning error.
+ * Reused by `groupFailuresByPage` and by `src/reporting/grouping.ts`.
+ */
+export function countsAsFailure(result: ScenarioResult): boolean {
   if (result.status === 'skipped') {
     return false;
   }
@@ -89,12 +96,13 @@ function countsAsFailure(result: ScenarioResult): boolean {
   return result.errors.some((error: NormalizedError) => error.severity !== 'warning');
 }
 
-function pickProbableError(errors: readonly NormalizedError[]): NormalizedError | undefined {
+/** The "probable error": first non-warning error, else the first error. */
+export function pickProbableError(errors: readonly NormalizedError[]): NormalizedError | undefined {
   const firstNonWarning = errors.find((error) => error.severity !== 'warning');
   return firstNonWarning ?? errors[0];
 }
 
-function toFailureItem(result: ScenarioResult): FailureItem {
+export function toFailureItem(result: ScenarioResult): FailureItem {
   const probableError = pickProbableError(result.errors);
   const category = probableError?.category ?? UNKNOWN_ERROR_CATEGORY;
   const message = probableError?.message ?? NO_NORMALIZED_ERROR_MESSAGE;
@@ -105,7 +113,9 @@ function toFailureItem(result: ScenarioResult): FailureItem {
     consent: result.scenario.consent,
     country: result.scenario.country,
     category,
-    message
+    message,
+    page: result.scenario.page.path,
+    ...(result.scenario.page.name !== undefined ? { pageName: result.scenario.page.name } : {})
   };
 }
 
