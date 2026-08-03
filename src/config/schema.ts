@@ -111,7 +111,8 @@ const AiPolicySchema = z
     timeoutMs: z.number().int().min(1).default(30_000),
     maxOutputTokens: z.number().int().min(1).default(1024),
     maxAttempts: z.number().int().min(1).default(2),
-    maxCostUsd: z.number().min(0).default(0.5)
+    maxCostUsd: z.number().min(0).default(0.5),
+    model: z.string().min(1).optional()
   })
   .strict()
   .prefault({});
